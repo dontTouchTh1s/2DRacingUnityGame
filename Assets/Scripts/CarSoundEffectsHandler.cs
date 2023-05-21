@@ -13,7 +13,7 @@ public class CarSoundEffectsHandler : MonoBehaviour
 
     private void Awake()
     {
-        _carController = GetComponentInParent<CarController>();
+        _carController = GetComponent<CarController>();
     }
 
     // Update is called once per frame
@@ -21,6 +21,15 @@ public class CarSoundEffectsHandler : MonoBehaviour
     {
         UpdateCarEngineSfx();
         UpdateCarTierScreechingSfx();
+    }
+
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        var relativeVelocity = col.relativeVelocity.magnitude;
+        carHitAudioSource.volume = relativeVelocity * 0.07f;
+        carHitAudioSource.pitch = Random.Range(0.95f, 1.05f);
+        if (!carHitAudioSource.isPlaying)
+            carHitAudioSource.Play();
     }
 
     private void UpdateCarTierScreechingSfx()

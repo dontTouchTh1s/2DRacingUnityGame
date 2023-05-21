@@ -3,24 +3,24 @@ using UnityEngine;
 
 public class CarController : MonoBehaviour
 {
-    public float VelocityMagnitude => _carRigidbody2D.velocity.magnitude;
+    [Header("Car settings")] public float driftFactor = 0.95f;
 
-    [Header("Car settings")]
-    public float driftFactor = 0.95f;
     public float accelerationFactor = 26.0f;
     public float turnFactor = 3.5f;
     public float maxSpeed = 30.0f;
+    public float breakFactor = 1.4f;
 
     //Local variables
     private float _accelerationInput;
-    private float _steeringInput;
-    private float _linearDrag;
-    private bool _isBreaking;
-    private float _rotationAngle;
-    private float _velocityVsUp;
 
     //Components
-    Rigidbody2D _carRigidbody2D;
+    private Rigidbody2D _carRigidbody2D;
+    private bool _isBreaking;
+    private float _linearDrag;
+    private float _rotationAngle;
+    private float _steeringInput;
+    private float _velocityVsUp;
+    public float VelocityMagnitude => _carRigidbody2D.velocity.magnitude;
 
 
     //Awake is called when the script instance is being loaded.
@@ -51,19 +51,15 @@ public class CarController : MonoBehaviour
 
         if (_accelerationInput > 0)
         {
-            //if (velocityVsUp < -1)
-            //{
-            //    Break();
-            //    return;
-            //}
-            //Limit so we cannot go faster than the 50% of max speed in the "reverse" direction
-            if (_velocityVsUp > maxSpeed)
+            if (_velocityVsUp < -1)
             {
+                Break();
                 return;
             }
+
+            //Limit so we cannot go faster than the 50% of max speed in the "reverse" direction
+            if (_velocityVsUp > maxSpeed) return;
         }
-
-
 
 
         //Limit so we cannot go faster in any direction while accelerating
@@ -72,17 +68,15 @@ public class CarController : MonoBehaviour
 
         if (_accelerationInput < 0)
         {
-            accelerate /= 2f;
             if (_velocityVsUp > 1)
             {
                 Break();
                 return;
             }
+
             //Limit so we cannot go faster than the 50% of max speed in the "reverse" direction
-            if (_velocityVsUp < -maxSpeed * 0.5f)
-            {
-                return;
-            }
+            if (_velocityVsUp < -maxSpeed * 0.5f) return;
+            accelerate /= 2f;
         }
 
         //Create a force for the engine
@@ -128,17 +122,18 @@ public class CarController : MonoBehaviour
 
     private void Break()
     {
-        _carRigidbody2D.drag *= 2.5f;
+        _carRigidbody2D.drag += breakFactor;
         _isBreaking = true;
     }
+
     public bool IsTierScreeching(out float lateralVelocity, out bool isBreaking)
     {
         isBreaking = _isBreaking;
-        float sideVelocity = math.abs(Vector2.Dot(transform.right, _carRigidbody2D.velocity));
+        var sideVelocity = math.abs(Vector2.Dot(transform.right, _carRigidbody2D.velocity));
         lateralVelocity = sideVelocity;
         if (_isBreaking && _carRigidbody2D.velocity.magnitude >= 15)
             return true;
 
-        return (sideVelocity) > 7f;
+        return sideVelocity > 7f;
     }
 }
