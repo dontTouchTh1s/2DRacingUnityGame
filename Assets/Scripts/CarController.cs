@@ -4,23 +4,31 @@ using UnityEngine;
 public class CarController : MonoBehaviour
 {
     [Header("Car settings")] public float driftFactor = 0.95f;
-
-    public float accelerationFactor = 26.0f;
+    public float accelerationFactor = 1.5f;
+    public float enginePower = 10;
     public float turnFactor = 3.5f;
-    public float maxSpeed = 30.0f;
+    public float maxSpeed = 45.0f;
     public float breakFactor = 1.4f;
+    public float gear = 4;
+
+    public float gearRatio = 0.1f;
 
     //Local variables
     private float _accelerationInput;
 
     //Components
     private Rigidbody2D _carRigidbody2D;
+    private float _currentEnginePower;
+
+    private int _currentGear = 1;
     private bool _isBreaking;
     private float _linearDrag;
+    private float _maxGearSpeed;
     private float _rotationAngle;
     private float _steeringInput;
     private float _velocityVsUp;
     public float VelocityMagnitude => _carRigidbody2D.velocity.magnitude;
+    public float CurrentGear => _currentGear;
 
 
     //Awake is called when the script instance is being loaded.
@@ -28,6 +36,7 @@ public class CarController : MonoBehaviour
     {
         _carRigidbody2D = GetComponent<Rigidbody2D>();
         _linearDrag = _carRigidbody2D.drag;
+        _currentEnginePower = enginePower * accelerationFactor;
     }
 
     //Frame-rate independent for physics calculations.
@@ -38,12 +47,11 @@ public class CarController : MonoBehaviour
         ApplySteering();
     }
 
+
     private void ApplyEngineForce()
     {
-        var accelerate = accelerationFactor;
         _carRigidbody2D.drag = _linearDrag;
         _isBreaking = false;
-
         //Calculate how much "forward" we are going in terms of the direction of our velocity
         _velocityVsUp = Vector2.Dot(transform.up, _carRigidbody2D.velocity);
 
@@ -57,7 +65,6 @@ public class CarController : MonoBehaviour
                 return;
             }
 
-            //Limit so we cannot go faster than the 50% of max speed in the "reverse" direction
             if (_velocityVsUp > maxSpeed) return;
         }
 
@@ -76,11 +83,23 @@ public class CarController : MonoBehaviour
 
             //Limit so we cannot go faster than the 50% of max speed in the "reverse" direction
             if (_velocityVsUp < -maxSpeed * 0.5f) return;
-            accelerate /= 2f;
+            _currentEnginePower = enginePower;
         }
 
+        _maxGearSpeed = (_currentGear + _currentGear * gearRatio) * enginePower;
+
+        _currentEnginePower = Mathf.Lerp(_currentEnginePower, _maxGearSpeed, 0.01f * accelerationFactor);
+        Debug.Log("enginePower: " + _currentEnginePower);
+        Debug.Log("maxSpeed: " + _maxGearSpeed);
+        Debug.Log("currentGear: " + _currentGear);
+
+
+        if (_velocityVsUp > _maxGearSpeed && _currentGear < gear) _currentGear++;
+        _maxGearSpeed = (_currentGear - 1 + (_currentGear - 1) * gearRatio) * enginePower - enginePower / 2;
+        if (_velocityVsUp < _maxGearSpeed && _currentGear > 1) _currentGear--;
+
         //Create a force for the engine
-        Vector2 engineForceVector = transform.up * (_accelerationInput * accelerate);
+        Vector2 engineForceVector = transform.up * (_accelerationInput * _currentEnginePower);
 
         //Apply force and pushes the car forward
         _carRigidbody2D.AddForce(engineForceVector, ForceMode2D.Force);
