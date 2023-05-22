@@ -31,7 +31,6 @@ public class CarSoundEffectsHandler : MonoBehaviour
         carHitAudioSource.pitch = Random.Range(0.95f, 1.05f);
         if (!carHitAudioSource.isPlaying)
             carHitAudioSource.Play();
-        
     }
 
 
@@ -49,7 +48,8 @@ public class CarSoundEffectsHandler : MonoBehaviour
             }
 
             carTierScreechAudioSource.volume = Mathf.Abs(lateralVelocity) * 0.05f;
-            carTierScreechAudioSource.pitch = Mathf.Abs(lateralVelocity) * 0.1f;
+            var ScreechingPitchValue = Mathf.Clamp(Mathf.Abs(lateralVelocity) * 0.05f, 1f, 1.5f);
+            carTierScreechAudioSource.pitch = ScreechingPitchValue;
         }
 
         carTierScreechAudioSource.volume = Mathf.Lerp(carTierScreechAudioSource.volume, 0, Time.deltaTime * 10);
