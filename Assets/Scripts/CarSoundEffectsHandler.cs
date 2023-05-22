@@ -31,6 +31,7 @@ public class CarSoundEffectsHandler : MonoBehaviour
         carHitAudioSource.pitch = Random.Range(0.95f, 1.05f);
         if (!carHitAudioSource.isPlaying)
             carHitAudioSource.Play();
+        
     }
 
 
@@ -56,7 +57,8 @@ public class CarSoundEffectsHandler : MonoBehaviour
 
     private void UpdateCarEngineSfx()
     {
-        _velocityMagnitude = _carController.VelocityMagnitude / (_carController.CurrentGear * 0.7f);
+        var carEnginePowerFactor = _carController.enginePower * 0.04f;
+        _velocityMagnitude = _carController.VelocityMagnitude / (_carController.CurrentGear * carEnginePowerFactor);
         // Set car engine volume based on car magnitude velocity
         var engineVolume = _velocityMagnitude * 0.05f;
         engineVolume = Mathf.Clamp(engineVolume * 0.8f, 0.2f, 1f);
