@@ -96,7 +96,11 @@ public class CarController : MonoBehaviour
 
         if (_velocityVsUp > _maxGearSpeed && _currentGear < gear) _currentGear++;
         _maxGearSpeed = (_currentGear - 1 + (_currentGear - 1) * gearRatio) * enginePower - enginePower / 2;
-        if (_velocityVsUp < _maxGearSpeed && _currentGear > 1) _currentGear--;
+        if (_velocityVsUp < _maxGearSpeed && _currentGear > 1)
+        {
+            _currentGear--;
+            _currentEnginePower = _maxGearSpeed;
+        }
 
         //Create a force for the engine
         Vector2 engineForceVector = transform.up * (_accelerationInput * _currentEnginePower);
