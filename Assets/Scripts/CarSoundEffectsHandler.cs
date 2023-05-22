@@ -9,6 +9,7 @@ public class CarSoundEffectsHandler : MonoBehaviour
     public AudioSource carHitAudioSource;
 
     private CarController _carController;
+    private float _gearSpeed;
     private float _velocityMagnitude;
 
     private void Awake()
@@ -32,6 +33,7 @@ public class CarSoundEffectsHandler : MonoBehaviour
             carHitAudioSource.Play();
     }
 
+
     private void UpdateCarTierScreechingSfx()
     {
         if (_carController.IsTierScreeching(out var lateralVelocity, out var isBreaking))
@@ -54,7 +56,7 @@ public class CarSoundEffectsHandler : MonoBehaviour
 
     private void UpdateCarEngineSfx()
     {
-        _velocityMagnitude = _carController.VelocityMagnitude;
+        _velocityMagnitude = _carController.VelocityMagnitude / (_carController.CurrentGear * 0.7f);
         // Set car engine volume based on car magnitude velocity
         var engineVolume = _velocityMagnitude * 0.05f;
         engineVolume = Mathf.Clamp(engineVolume * 0.8f, 0.2f, 1f);
