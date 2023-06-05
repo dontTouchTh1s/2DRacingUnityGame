@@ -137,6 +137,7 @@ AudioMixerController:
     - 8f8b69d2796c18e439dbc765e0b924c9
     - cb2685b47fc25244cb3a70f2b7722395
     - fc5d987354e72424bbe7e2f632c6a5dd
+    - ec036ec16918e4344b64635a9e56f760
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 24500006}
@@ -184,9 +185,31 @@ AudioMixerSnapshotController:
   m_AudioMixer: {fileID: 24100000}
   m_SnapshotID: a2236035ff273fb45a1a24f92eb29ebc
   m_FloatValues:
-    524e12310f6c7b84a9f25aa2225d82e2: -18.592384
-    000bb4eadfbd3874ead20f68a21764cd: -19.928473
+    524e12310f6c7b84a9f25aa2225d82e2: -24.162655
+    b7833394e78f1964fb1b32196218c7a6: 0
+    0c706b866de49034ebcb253f60ae24d6: -6.991066
+    000bb4eadfbd3874ead20f68a21764cd: 0.1080022
+    f81f7b7eec4779747b25f9d0adb58059: -7.436929
   m_TransitionOverrides: {}
+--- !u!243 &2855486431291232741
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CopSiren
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: ec036ec16918e4344b64635a9e56f760
+  m_Children: []
+  m_Volume: b7833394e78f1964fb1b32196218c7a6
+  m_Pitch: 8ec198458cac9e94ba64afdb01dba38f
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: 6744494994504749715}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
 --- !u!243 &4208961755721393360
 AudioMixerGroupController:
   m_ObjectHideFlags: 0
@@ -234,6 +257,7 @@ AudioMixerGroupController:
   - {fileID: -5954029540200101546}
   - {fileID: -2761641630905875}
   - {fileID: -5350901382824664671}
+  - {fileID: 2855486431291232741}
   m_Volume: 01db20c1abde67540a9658300924778c
   m_Pitch: 7eb3e7e4571f0e642abd09e1583a2d2a
   m_Send: 00000000000000000000000000000000
@@ -243,3 +267,17 @@ AudioMixerGroupController:
   m_Mute: 0
   m_Solo: 0
   m_BypassEffects: 0
+--- !u!244 &6744494994504749715
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 54b38db6193ab82488b722b5265b188b
+  m_EffectName: Attenuation
+  m_MixLevel: a2b09c2ce3ddf244db2567945e03a2f9
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0

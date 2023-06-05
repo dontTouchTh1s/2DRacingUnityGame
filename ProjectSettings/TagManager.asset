@@ -50,3 +50,6 @@ TagManager:
   - name: Particles
     uniqueID: 2405948951
     locked: 0
+  - name: Shadows
+    uniqueID: 3024390837
+    locked: 0
