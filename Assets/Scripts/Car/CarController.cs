@@ -76,9 +76,14 @@ namespace Car
 
                 if (_velocityVsUp > MaxSpeed) return;
 
-                _currentEnginePower = Mathf.Lerp(_currentEnginePower, _maxGearSpeed, 0.01f * accelerationFactor);
+                _currentEnginePower = Mathf.Lerp(_currentEnginePower,
+                    _maxGearSpeed + enginePower * (_currentGear + _currentGear * gearRatio),
+                    0.01f * accelerationFactor);
                 if (_velocityVsUp > _maxGearSpeed && _currentGear < gear) _currentGear++;
             }
+
+            Debug.Log(_maxGearSpeed);
+
 
             _maxGearSpeed = (_currentGear - 1 + (_currentGear - 1) * gearRatio) * enginePower - enginePower / 2;
             _maxGearSpeed = Mathf.Max(_maxGearSpeed, enginePower);
@@ -86,9 +91,11 @@ namespace Car
             {
                 if (_currentGear > 1)
                     _currentGear--;
-                _currentEnginePower = _maxGearSpeed;
+                _currentEnginePower = _maxGearSpeed + enginePower * (_currentGear + _currentGear * gearRatio);
             }
 
+            Debug.Log(_currentGear);
+            Debug.Log(_currentEnginePower);
             //Limit so we cannot go faster in any direction while accelerating
             if (_carRigidbody2D.velocity.sqrMagnitude > MaxSpeed * MaxSpeed && _accelerationInput > 0)
                 return;
