@@ -1,3 +1,4 @@
+using Bullet;
 using Car;
 using Cops.AStar;
 using UnityEngine;
@@ -6,6 +7,9 @@ namespace Cops
 {
     public class CopAi : MonoBehaviour
     {
+        [SerializeField] private GameObject bullet;
+        [SerializeField] private float fireRate = 1.5f;
+
         private bool _blocked;
         private CarController _carController;
         private Graph _graph;
@@ -13,6 +17,8 @@ namespace Cops
         private PathFinding _pathFinding;
         private GameObject _player;
         private CarController _playerController;
+        private bool _readyToFire = true;
+        private float _steerDestroyAmount;
         private Vector3 _targetPosition;
 
         // Start is called before the first frame update
@@ -41,6 +47,7 @@ namespace Cops
             }
             else
             {
+                Fire();
                 _targetPosition = playerPosition;
             }
 
@@ -51,29 +58,22 @@ namespace Cops
             // Turning to target direction
             inputVector.x = TurnToTarget();
 
-            if (Vector3.Distance(position, _targetPosition) < _carController.VelocityMagnitude / 4.5)
+            if (Vector3.Distance(position, _targetPosition) > 12 ||
+                _playerController.VelocityMagnitude > _carController.VelocityMagnitude * 1.3)
+                inputVector.y = 1;
+
+            if (Vector3.Distance(position, _targetPosition) < _carController.VelocityMagnitude / 3.5f)
                 // If we are moving really faster than play, and we are near him we break
-                if (_playerController.VelocityMagnitude < _carController.VelocityMagnitude / 2f)
+                if (_playerController.VelocityMagnitude < _carController.VelocityMagnitude / 1.5f)
                     inputVector.y = -1;
 
-            if (Vector3.Distance(position, _targetPosition) > 12) inputVector.y = 1;
-
             var blockDistance = Mathf.Clamp(_carController.VelocityMagnitude / 3.5f, 5, 50);
-            if (_pathFinding.CheckWayBlock(copTransformUp, blockDistance, out col,
-                    Color.yellow))
-            {
-                if (col.gameObject.CompareTag("CarsCollider") || col.gameObject.CompareTag("PlayerCollider"))
-                {
-                    inputVector.y = 0;
-                    var carController = col.gameObject.GetComponentInParent<CarController>();
-                    if (carController.VelocityMagnitude < _carController.VelocityMagnitude / 2f) _blocked = true;
-                }
-                else
-                {
+            if (_pathFinding.CheckWayBlock(copTransformUp, blockDistance, out col, Color.yellow))
+                if (!col.gameObject.CompareTag("CarsCollider") && !col.gameObject.CompareTag("PlayerCollider"))
                     _blocked = true;
-                }
-            }
-
+            if (_pathFinding.CheckWayBlock(copTransformUp, 12f, out col, Color.green))
+                if (col.gameObject.CompareTag("CarsCollider"))
+                    inputVector.y = 0;
             if (_blocked)
             {
                 inputVector.y = -1;
@@ -85,7 +85,7 @@ namespace Cops
             }
 
             if (_carController.IsReversing) inputVector.x *= -1;
-
+            inputVector.x += _steerDestroyAmount;
             _carController.SetInputVector(inputVector);
         }
 
@@ -154,24 +154,40 @@ namespace Cops
 
             Invoke(nameof(NeedNewPath), 1);
         }
-        // private IEnumerator CreatePath(Vector3 position, Vector3 playerPosition)
-        // {
-        //     var paths = _graph.FindPath(position, playerPosition);
-        //     for (var i = 0; i < paths.Count; i += 1)
-        //         if (!_pathFinding.CheckLineBlock(position, paths[i], out _))
-        //         {
-        //             Debug.DrawLine(position, paths[i], Color.blue, 2f);
-        //             _targetPosition = paths[i];
-        //             break;
-        //         }
-        //
-        //     _needNewPath = false;
-        //     yield return null;
-        // }
+
+        public void onCopDestroye()
+        {
+            int[] factor = { 1, -1 };
+            _steerDestroyAmount = Random.Range(1.7f, 3f) * factor[Random.Range(0, 2)];
+        }
 
         private void NeedNewPath()
         {
             _needNewPath = true;
+        }
+
+        private void Fire()
+        {
+            if (_readyToFire)
+            {
+                var playerPosition = _player.transform.position;
+
+                var shootDirection = playerPosition - transform.position;
+
+                var rotationToTarget = Quaternion.LookRotation(Vector3.forward, shootDirection);
+
+                var bulletP = Instantiate(bullet, transform.position + shootDirection.normalized * 1.5f,
+                    rotationToTarget);
+                bulletP.GetComponent<BulletController>().Parent = gameObject;
+                bulletP.GetComponent<Rigidbody2D>().AddForce(bulletP.transform.up * 0.3f, ForceMode2D.Impulse);
+                _readyToFire = false;
+                Invoke(nameof(MakeReady), fireRate);
+            }
+        }
+
+        private void MakeReady()
+        {
+            _readyToFire = true;
         }
     }
 }

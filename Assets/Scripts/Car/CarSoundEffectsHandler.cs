@@ -60,13 +60,13 @@ namespace Car
 
         private void UpdateCarEngineSfx()
         {
-            var gearFactor = _carController.CurrentGear * (0.4f + _carController.gearRatio);
-            gearFactor = Mathf.Clamp(gearFactor, 0.2f, _carController.gear);
+            var gearFactor = _carController.CurrentGear * 0.6f;
+            gearFactor = Mathf.Clamp(gearFactor, 0, _carController.gear);
             _velocityMagnitude = _carController.VelocityMagnitude / gearFactor;
 
             // Set car engine volume based on car magnitude velocity
             var engineVolume = _velocityMagnitude * 0.05f;
-            engineVolume = Mathf.Clamp(engineVolume * 0.8f, 0.2f, 1f);
+            engineVolume = Mathf.Clamp(engineVolume, 0.2f, 1f);
             var enginePitch = _velocityMagnitude * 0.05f;
             enginePitch = Mathf.Clamp(enginePitch, 0.5f, 1.6f);
             carEngineAudioSource.volume = engineVolume;

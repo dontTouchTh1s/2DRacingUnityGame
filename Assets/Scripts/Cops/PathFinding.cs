@@ -28,7 +28,6 @@ namespace Cops
         public bool CheckLineBlock(Vector2 start, Vector2 end, out Collider2D col)
         {
             Physics2D.queriesHitTriggers = false;
-            Physics2D.queriesStartInColliders = false;
             col = null;
             var rays = Physics2D.LinecastAll(start, end);
             Debug.DrawLine(start, end, Color.green);

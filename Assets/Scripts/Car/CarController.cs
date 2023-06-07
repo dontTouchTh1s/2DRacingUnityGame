@@ -45,7 +45,7 @@ namespace Car
             _carRigidbody2D = GetComponent<Rigidbody2D>();
             LinearDrag = _carRigidbody2D.drag;
             _currentEnginePower = enginePower * accelerationFactor;
-            MaxSpeed = (gear + gear * gearRatio) * enginePower;
+            MaxSpeed = gear * gearRatio * enginePower;
         }
 
         //Frame-rate independent for physics calculations.
@@ -64,7 +64,7 @@ namespace Car
             _velocityVsUp = Vector2.Dot(transform.up, _carRigidbody2D.velocity);
 
             //Limit so we cannot go faster than the max speed in the "forward" direction
-            _maxGearSpeed = (_currentGear + _currentGear * gearRatio) * enginePower;
+            _maxGearSpeed = _currentGear * gearRatio * enginePower;
 
             if (_accelerationInput > 0)
             {
@@ -77,25 +77,21 @@ namespace Car
                 if (_velocityVsUp > MaxSpeed) return;
 
                 _currentEnginePower = Mathf.Lerp(_currentEnginePower,
-                    _maxGearSpeed + enginePower * (_currentGear + _currentGear * gearRatio),
+                    _maxGearSpeed + enginePower * (_currentGear * gearRatio),
                     0.01f * accelerationFactor);
                 if (_velocityVsUp > _maxGearSpeed && _currentGear < gear) _currentGear++;
             }
 
-            Debug.Log(_maxGearSpeed);
 
-
-            _maxGearSpeed = (_currentGear - 1 + (_currentGear - 1) * gearRatio) * enginePower - enginePower / 2;
+            _maxGearSpeed = (_currentGear - 1 * gearRatio) * enginePower - enginePower / 2;
             _maxGearSpeed = Mathf.Max(_maxGearSpeed, enginePower);
             if (_velocityVsUp < _maxGearSpeed)
             {
                 if (_currentGear > 1)
                     _currentGear--;
-                _currentEnginePower = _maxGearSpeed + enginePower * (_currentGear + _currentGear * gearRatio);
+                _currentEnginePower = _maxGearSpeed + enginePower * (_currentGear * gearRatio);
             }
 
-            Debug.Log(_currentGear);
-            Debug.Log(_currentEnginePower);
             //Limit so we cannot go faster in any direction while accelerating
             if (_carRigidbody2D.velocity.sqrMagnitude > MaxSpeed * MaxSpeed && _accelerationInput > 0)
                 return;
@@ -110,7 +106,7 @@ namespace Car
 
                 //Limit so we cannot go faster than the 50% of max speed in the "reverse" direction
                 if (_velocityVsUp < -MaxSpeed * 0.5f) return;
-                _currentEnginePower = enginePower;
+                _currentEnginePower = enginePower * (_currentGear * gearRatio);
             }
 
 
@@ -153,9 +149,9 @@ namespace Car
             _accelerationInput = inputVector.y;
         }
 
-        private void Break()
+        public void Break(float? breakAmount = null)
         {
-            _carRigidbody2D.drag += breakFactor;
+            _carRigidbody2D.drag += breakAmount ?? breakFactor;
             _isBreaking = true;
         }
 
